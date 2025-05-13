@@ -32,7 +32,7 @@ const AboutPage: React.FC = () => {
             <div className="p-8 md:p-12 md:w-2/3">
               <h2 className="text-3xl font-bold mb-4">嗨，我是 Ian 👋</h2>
               <p className="text-gray-700 mb-6 text-lg">
-                我是一位充滿熱情的全端開發者，喜歡探索和分享最新的網頁技術。擁有超過十年的開發經驗，專注於 React 生態系統和現代化前端架構。
+                我是一位充滿熱情的LC/NC開發者，喜歡探索和分享最新的AI技術。擁有超過十年的產品經理經驗，專注於 React 生態系統、現代化前端架構、AI輔助開發和自動化流程。
               </p>
               
               <p className="text-gray-700 mb-8">
