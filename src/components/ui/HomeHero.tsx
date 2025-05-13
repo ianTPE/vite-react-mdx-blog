@@ -5,22 +5,30 @@ import { Link } from 'react-router-dom';
 const HomeHero: React.FC = () => {
   return (
     <motion.section 
-      className="relative mb-16 py-32 overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700"
+      className="relative mb-16 py-32 overflow-hidden rounded-xl"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      {/* Background pattern */}
-      <div className="absolute inset-0 overflow-hidden opacity-10">
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-white rounded-full"></div>
-        <div className="absolute top-1/2 -right-24 w-64 h-64 bg-white rounded-full"></div>
-        <div className="absolute -bottom-24 left-1/3 w-80 h-80 bg-white rounded-full"></div>
-      </div>
+      {/* Background image with parallax effect */}
+      <motion.div 
+        className="absolute inset-0 w-full h-full z-0"
+        initial={{ scale: 1.05 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 1.2, ease: "easeOut" }}
+      >
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: 'url(/images/hero-background.jpg)' }}
+        >
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+      </motion.div>
       
       {/* Content with staggered animations */}
       <div className="relative z-10 max-w-3xl mx-auto text-center px-4">
         <motion.div
-          className="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-blue-100 mb-6"
+          className="inline-block bg-blue-500/20 backdrop-blur-sm px-4 py-2 rounded-full text-blue-100 mb-6"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
