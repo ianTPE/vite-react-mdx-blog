@@ -33,7 +33,7 @@ const HomeHero: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          ⚡ 使用 React 18、Vite 4 與 MDX 打造的現代化部落格
+          ⚡ 使用 React v18.2.0、Vite v6.3.5 與 MDX v3.1.0 打造的現代化部落格
         </motion.div>
       
         <motion.h1 
