@@ -25,7 +25,7 @@ const AboutPage: React.FC = () => {
   backgroundSize: 'cover',
   backgroundPosition: 'center',
 }}>
-  <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/70 via-blue-900/40 to-transparent" />
+
                 <div className="w-56 h-56 rounded-full overflow-hidden ring-4 ring-white shadow-lg">
                   <img 
                     src="/images/author.png" 
