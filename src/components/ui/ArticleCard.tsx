@@ -30,8 +30,17 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
           </h2>
           <p className="text-gray-700 mb-4 line-clamp-3 flex-grow">{article.summary}</p>
           <div className="mt-auto pt-4 border-t border-gray-100 flex items-center">
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">
-              I
+            <div className="w-8 h-8 rounded-full overflow-hidden">
+              <img 
+                src="/images/author.png" 
+                alt="Ian" 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  // 如果圖片加載失敗，顯示備用的文字頭像
+                  const target = e.target as HTMLElement;
+                  target.outerHTML = `<div class="w-full h-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">I</div>`;
+                }}
+              />
             </div>
             <div className="ml-2">
               <span className="text-sm text-gray-800">Ian</span>

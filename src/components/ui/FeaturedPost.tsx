@@ -42,8 +42,17 @@ const FeaturedPost: React.FC<FeaturedPostProps> = ({ post }) => {
         
         <div className="flex items-center mt-auto">
           <div className="mr-4">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">
-              I
+            <div className="w-10 h-10 rounded-full overflow-hidden">
+              <img 
+                src="/images/author.png" 
+                alt="Ian" 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  // 如果圖片加載失敗，顯示備用的文字頭像
+                  const target = e.target as HTMLElement;
+                  target.outerHTML = `<div class="w-full h-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">I</div>`;
+                }}
+              />
             </div>
           </div>
           <div>
