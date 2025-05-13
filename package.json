@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "npm run generate-articles || true && vite build",
+    "dev": "npm run generate-articles && vite",
+    "build": "npm run generate-articles && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "generate-articles": "tsx scripts/generate-articles.ts",
