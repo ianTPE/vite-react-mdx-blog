@@ -52,7 +52,7 @@ const AboutPage: React.FC = () => {
                 
                 <div className="flex gap-4">
                   <a 
-                    href="https://github.com/yourusername" 
+                    href="https://github.com/ianTPE" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
@@ -64,7 +64,7 @@ const AboutPage: React.FC = () => {
                   </a>
                   
                   <a 
-                    href="mailto:your-email@example.com" 
+                    href="mailto:ian@wo94.top" 
                     className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
