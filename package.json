@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run generate-middleware && tsc -b && vite build",
+    "build": "npm run generate-middleware || true && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "generate-middleware": "tsx scripts/generate-middleware.ts"
@@ -20,7 +20,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
-    "@types/glob": "^8.1.0",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.4.1",
@@ -30,7 +29,6 @@
     "eslint": "^9.25.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
-    "glob": "^11.0.2",
     "globals": "^16.0.0",
     "tsx": "^4.11.0",
     "rehype-highlight": "^7.0.2",

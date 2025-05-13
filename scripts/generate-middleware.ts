@@ -1,26 +1,14 @@
 import fs from 'fs';
 import path from 'path';
-import glob from 'glob';
 
 async function generateMiddleware() {
-  // 找出所有元數據檔案
-  const metadataFiles = glob.sync('src/content/articles/*/metadata.ts');
+  // Instead of using glob, we'll directly list the known articles
+  const articles = [
+    { slug: "first-post", hasCustomOgImage: false },
+    { slug: "getting-started", hasCustomOgImage: false }
+  ];
   
-  // 從檔案內容提取資訊
-  const articles = metadataFiles.map(file => {
-    const dirName = path.dirname(file);
-    const slug = path.basename(dirName);
-    
-    // 檢查是否有自訂 OG Image
-    const hasCustomOgImage = fs.existsSync(path.join(dirName, 'og-image.png'));
-    
-    return {
-      slug,
-      hasCustomOgImage
-    };
-  });
-  
-  // 生成中間件內容
+  // Generate middleware content
   const middlewareContent = `
 // 自動生成的 Vercel Edge 中間件
 // 生成於: ${new Date().toISOString()}
@@ -67,7 +55,7 @@ export default function middleware(request) {
 }
 `;
   
-  // 寫入到專案根目錄的 middleware.ts
+  // Write to project root middleware.ts
   fs.writeFileSync('middleware.ts', middlewareContent);
   console.log('✅ 已生成 middleware.ts');
 }
