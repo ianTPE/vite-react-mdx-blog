@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run generate-middleware || true && vite build",
+    "build": "npm run generate-articles || true && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate-middleware": "tsx scripts/generate-middleware.ts",
+    "generate-articles": "tsx scripts/generate-articles.ts",
     "typecheck": "tsc -b --noEmit"
   },
   "dependencies": {

@@ -4,5 +4,10 @@
   ],
   "buildCommand": "npm run build",
   "installCommand": "npm install",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "functions": {
+    "middleware": {
+      "edge": false
+    }
+  }
 }
