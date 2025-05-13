@@ -23,14 +23,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Link to="/" className="font-medium text-gray-700 hover:text-blue-600 transition-colors">首頁</Link>
               <Link to="/articles" className="font-medium text-gray-700 hover:text-blue-600 transition-colors">文章</Link>
               <Link to="/about" className="font-medium text-gray-700 hover:text-blue-600 transition-colors">關於</Link>
-              <a 
-                href="https://github.com/your-username/vite-react-mdx-blog" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="font-medium text-gray-700 hover:text-blue-600 transition-colors"
-              >
-                GitHub
-              </a>
             </div>
             
             {/* Mobile Menu Button */}
