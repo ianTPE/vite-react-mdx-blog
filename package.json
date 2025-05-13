@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run generate-middleware || true && tsc -b && vite build",
+    "build": "npm run generate-middleware || true && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate-middleware": "tsx scripts/generate-middleware.ts"
+    "generate-middleware": "tsx scripts/generate-middleware.ts",
+    "typecheck": "tsc -b --noEmit"
   },
   "dependencies": {
     "@mdx-js/react": "^3.1.0",

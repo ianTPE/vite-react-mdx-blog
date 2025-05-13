@@ -5,7 +5,7 @@ import { createComponentRegistry } from './component-registry';
 const metadataModules = import.meta.glob('../content/articles/*/metadata.ts', { eager: true });
 const contentModules = import.meta.glob('../content/articles/*/index.mdx');
 const componentModules = import.meta.glob('../content/articles/*/components/index.ts');
-const globalComponentsModule = import.meta.glob('../components/mdx/index.ts', { eager: true });
+const globalComponentsModule = import.meta.glob('../components/mdx/components.tsx', { eager: true });
 
 // 獲取全局組件
 const getGlobalComponents = () => {
