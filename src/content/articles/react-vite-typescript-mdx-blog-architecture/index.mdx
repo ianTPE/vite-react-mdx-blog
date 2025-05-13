@@ -1,0 +1,434 @@
+# React + Vite + TypeScript + MDX 部落格架構
+
+本文提供一個整合了長期可擴展性考量的完整部落格架構設計，滿足不使用 YAML frontmatter、避免 SSR、實現局部 MDX 組件，以及自動生成 Vercel Edge Middleware 的需求。
+
+<Alert type="info">
+  這篇文章描述的架構專為 React 開發者設計，特別考慮到在部落格開發中常見的痛點，如 SSR hydration 錯誤和元數據管理問題。
+</Alert>
+
+## 設計目標
+
+開發一個現代部落格系統時，我們通常面臨這些挑戰：
+
+1. **元數據解析錯誤** - 許多靜態網站生成器依賴 YAML frontmatter，但它容易產生解析錯誤
+2. **Hydration 不匹配** - SSR 環境下常見的 React hydration 錯誤
+3. **組件依賴管理** - 如何讓每篇文章擁有專屬組件而不互相影響
+4. **部署與快取優化** - 特別是在 Vercel 等平台上的邊緣函數管理
+
+這個架構專門解決這些問題，為開發者提供一套完整的解決方案。
+
+## 專案結構
+
+```
+vite-blog/
+├── public/                       # 靜態資源
+│   ├── images/                   # 公開圖片
+│   │   └── og-default.png        # 預設 OG Image
+│
+├── src/
+│   ├── components/               
+│   │   ├── ui/                   # 基礎 UI 組件
+│   │   ├── layout/               # 佈局組件
+│   │   └── mdx/                  # 全局 MDX 組件
+│   │       ├── CodeBlock.tsx     # 代碼塊組件
+│   │       └── index.ts          # 全局組件導出索引
+│   │
+│   ├── content/                  # 內容目錄
+│   │   └── articles/
+│   │       ├── first-post/       # 文章目錄 (slug = 資料夾名稱)
+│   │       │   ├── index.mdx     # 文章內容 (無 frontmatter)
+│   │       │   ├── metadata.ts   # TypeScript 元數據
+│   │       │   ├── og-image.png  # 文章專屬 OG Image (可選)
+│   │       │   └── components/   # 文章專屬組件
+│   │       │       ├── Demo.tsx  # 專屬於此文章的組件
+│   │       │       └── index.ts  # 組件註冊索引
+│   │
+│   ├── lib/                      
+│   │   ├── mdx-utils.ts          # MDX 處理工具
+│   │   ├── article-utils.ts      # 文章處理工具
+│   │   └── component-registry.ts # 組件註冊管理器
+│   │
+│   ├── pages/                    
+│   │   ├── HomePage.tsx          # 首頁 (文章列表)
+│   │   └── ArticlePage.tsx       # 單一文章頁面
+│   │
+│   ├── types/                    
+│   │   └── Article.ts            # 文章與組件相關介面
+│   │
+│   ├── App.tsx                   # 主 App 組件
+│   └── main.tsx                  # 入口點
+│
+├── scripts/                      
+│   └── generate-middleware.ts    # 中間件生成器
+│
+├── index.html                    # HTML 入口點
+├── vite.config.ts                # Vite 配置
+├── tsconfig.json                 # TypeScript 配置
+├── middleware.ts                 # 自動生成的中間件
+└── MDX_COMPONENT_ARCHITECTURE.md # 架構文檔
+```
+
+<ArchitectureFeature title="使用 TypeScript 元數據替代 YAML frontmatter" icon="📋">
+  每篇文章都有一個獨立的 TypeScript 元數據文件，而不是使用傳統的 YAML frontmatter。這帶來幾個重要優勢：
+
+  ```typescript
+  // src/content/articles/first-post/metadata.ts
+  import { ArticleMetadata } from '@/types/Article';
+
+  const metadata: ArticleMetadata = {
+    title: '第一篇部落格文章',
+    slug: 'first-post',
+    publishDate: '2025-05-01',
+    summary: '介紹不使用 frontmatter 的 MDX 寫作',
+    tags: ['react', 'mdx', 'vite'],
+    published: true,
+    ogImage: './og-image.png', // 可選，相對於文章目錄
+  };
+
+  export default metadata;
+  ```
+
+  - **類型安全**：TypeScript 提供完整的類型檢查，避免元數據結構錯誤
+  - **編輯器支援**：獲得自動完成和類型提示
+  - **可擴展性**：可以輕鬆添加複雜的元數據結構，如嵌套對象和數組
+  - **引用能力**：可以引用其他模塊或計算值
+</ArchitectureFeature>
+
+<ArchitectureFeature title="文章專屬組件實現" icon="🧩">
+  每篇文章可以擁有自己的專屬組件，這些組件只在特定文章中使用，避免了全局命名衝突。
+
+  ```tsx
+  // src/content/articles/first-post/components/Demo.tsx
+  import React from 'react';
+
+  interface DemoProps {
+    text: string;
+  }
+
+  export const Demo: React.FC<DemoProps> = ({ text }) => {
+    return (
+      <div className="demo-box">
+        <p>{text}</p>
+      </div>
+    );
+  };
+  ```
+
+  然後在文章的 MDX 中直接使用：
+
+  ```mdx
+  # 我的文章
+
+  這篇文章使用了專屬組件：
+
+  <Demo text="這個組件只在本文章中可用" />
+  ```
+
+  同時，我們還需要一個組件註冊索引文件：
+
+  ```typescript
+  // src/content/articles/first-post/components/index.ts
+  import { Demo } from './Demo';
+
+  export default {
+    Demo,
+    // 可以添加更多專屬組件...
+  };
+  ```
+</ArchitectureFeature>
+
+<ArchitectureFeature title="組件註冊管理器" icon="⚙️">
+  組件註冊管理器負責合併全局組件和文章專屬組件，並實現優雅的錯誤處理：
+
+  ```typescript
+  // src/lib/component-registry.ts
+  import React, { createElement } from 'react';
+
+  export const createComponentRegistry = (
+    globalComponents: Record<string, React.ComponentType<any>> = {},
+    localComponents: Record<string, React.ComponentType<any>> = {}
+  ) => {
+    // 合併全局組件和局部組件，優先使用局部組件
+    const registry = { ...globalComponents, ...localComponents };
+    
+    // 錯誤處理組件
+    const FallbackComponent = ({ name, ...props }: { name: string, [key: string]: any }) => {
+      console.warn(`Component "${name}" not found. Please check if it's registered.`);
+      return createElement('div', { 
+        style: { 
+          border: '1px solid #ff6b6b',
+          background: '#fff0f0', 
+          padding: '8px 12px',
+          borderRadius: '4px'
+        }
+      }, `組件 "${name}" 未找到`);
+    };
+    
+    // 代理組件查找，實現更好的錯誤處理
+    return new Proxy(registry, {
+      get: (target, prop: string) => {
+        return target[prop] || ((props: any) => createElement(FallbackComponent, { name: prop, ...props }));
+      }
+    });
+  };
+  ```
+
+  這個系統提供了幾個重要功能：
+  - 優先使用文章專屬組件，再回退到全局組件
+  - 當使用未註冊的組件時，顯示友好錯誤提示而不是崩潰
+  - 通過 Proxy 實現透明的組件解析
+</ArchitectureFeature>
+
+<ArchitectureFeature title="文章載入系統" icon="📚">
+  使用 Vite 的 `import.meta.glob` 功能動態載入文章內容和元數據：
+
+  ```typescript
+  // src/lib/article-utils.ts (部分代碼)
+  import { ArticleMetadata, ArticleWithContent } from '@/types/Article';
+  import { createComponentRegistry } from './component-registry';
+
+  // 使用 Vite 的 import.meta.glob 動態導入
+  const metadataModules = import.meta.glob('../content/articles/*/metadata.ts', { eager: true });
+  const contentModules = import.meta.glob('../content/articles/*/index.mdx');
+  const componentModules = import.meta.glob('../content/articles/*/components/index.ts');
+  const globalComponentsModule = import.meta.glob('../components/mdx/index.ts', { eager: true });
+
+  // 根據 slug 載入特定文章
+  export async function getArticleBySlug(slug: string): Promise<ArticleWithContent | null> {
+    // 尋找此 slug 對應的元數據路徑
+    const metadataPath = Object.keys(metadataModules).find(
+      path => path.includes(`/${slug}/metadata.ts`)
+    );
+    
+    if (!metadataPath) return null;
+    
+    // 獲取元數據
+    const metadata = (metadataModules[metadataPath] as { default: ArticleMetadata }).default;
+    
+    // 載入 MDX 內容
+    const contentPath = metadataPath.replace('metadata.ts', 'index.mdx');
+    const ContentModule = await contentModules[contentPath]();
+    
+    // 載入該文章的專屬組件 (如果有)
+    const componentsPath = metadataPath.replace('metadata.ts', 'components/index.ts');
+    let articleComponents = {};
+    
+    try {
+      if (componentModules[componentsPath]) {
+        const componentsModule = await componentModules[componentsPath]();
+        articleComponents = componentsModule.default || {};
+      }
+    } catch (error) {
+      console.warn(`Failed to load components for article "${slug}"`, error);
+    }
+    
+    // 建立組件註冊表
+    const globalComponents = getGlobalComponents();
+    const components = createComponentRegistry(globalComponents, articleComponents);
+    
+    return {
+      metadata,
+      Content: ContentModule.default,
+      components
+    };
+  }
+  ```
+
+  這個設計實現了幾個目標：
+  - **按需載入**：文章內容只在訪問時才載入，提高初始加載速度
+  - **動態發現**：自動發現所有文章，無需手動註冊
+  - **錯誤隔離**：一篇文章的錯誤不會影響其他文章
+</ArchitectureFeature>
+
+<ArchitectureFeature title="自動生成 Vercel Edge Middleware" icon="🔄">
+  設計了一個自動化腳本，根據文章元數據生成最佳的 Vercel Edge Middleware：
+
+  ```typescript
+  // scripts/generate-middleware.ts (部分代碼)
+  import fs from 'fs';
+  import path from 'path';
+  import glob from 'glob';
+
+  async function generateMiddleware() {
+    // 找出所有元數據檔案
+    const metadataFiles = glob.sync('src/content/articles/*/metadata.ts');
+    
+    // 從檔案內容提取資訊
+    const articles = metadataFiles.map(file => {
+      const dirName = path.dirname(file);
+      const slug = path.basename(dirName);
+      
+      // 檢查是否有自訂 OG Image
+      const hasCustomOgImage = fs.existsSync(path.join(dirName, 'og-image.png'));
+      
+      return {
+        slug,
+        hasCustomOgImage
+      };
+    });
+    
+    // 生成中間件內容
+    const middlewareContent = `
+  // 自動生成的 Vercel Edge 中間件
+  // 生成於: ${new Date().toISOString()}
+
+  import { NextResponse } from 'next/server';
+
+  export const config = {
+    matcher: ['/articles/:slug*', '/og-image/:slug*'],
+  };
+
+  export default function middleware(request) {
+    const url = new URL(request.url);
+    const pathname = url.pathname;
+    
+    // 處理文章路由
+    if (pathname.startsWith('/articles/')) {
+      const slug = pathname.split('/')[2];
+      const validSlugs = ${JSON.stringify(articles.map(a => a.slug))};
+      
+      if (validSlugs.includes(slug)) {
+        // 文章的快取控制
+        const response = NextResponse.next();
+        response.headers.set('Cache-Control', 'public, max-age=3600');
+        return response;
+      }
+    }
+    
+    // 處理 OG Image 請求
+    if (pathname.startsWith('/og-image/')) {
+      const slug = pathname.split('/')[2];
+      const articleData = ${JSON.stringify(articles)}.find(a => a.slug === slug);
+      
+      if (articleData) {
+        const response = NextResponse.next();
+        // 設定更長的快取時間，因為 OG Image 不常變更
+        response.headers.set('Cache-Control', 'public, max-age=86400');
+        return response;
+      }
+      
+      // 重定向到預設 OG Image
+      return NextResponse.rewrite(new URL('/images/og-default.png', request.url));
+    }
+    
+    return NextResponse.next();
+  }
+  `;
+    
+    // 寫入到專案根目錄的 middleware.ts
+    fs.writeFileSync('middleware.ts', middlewareContent);
+    console.log('✅ 已生成 middleware.ts');
+  }
+  ```
+
+  這個中間件生成系統提供以下優勢：
+  - **自動更新**：每次構建時自動根據最新文章列表更新
+  - **優化快取**：為不同資源類型設定最佳快取策略
+  - **OG Image 處理**：支援自訂 OG Image 和預設回退機制
+  - **路由過濾**：只處理有效的文章路徑
+</ArchitectureFeature>
+
+<ArchitectureFeature title="整合 OG Image 功能" icon="🖼️">
+  為每篇文章提供個性化的社交媒體預覽圖像：
+
+  1. **在元數據中定義**：
+     ```typescript
+     // metadata.ts
+     const metadata: ArticleMetadata = {
+       // ...其他元數據
+       ogImage: './og-image.png', // 相對於文章目錄
+     };
+     ```
+
+  2. **提供預設回退**：
+     ```typescript
+     // 獲取文章的 OG Image URL
+     export function getArticleOgImage(article: ArticleMetadata): string {
+       if (article.ogImage) {
+         return `/content/articles/${article.slug}/${article.ogImage}`;
+       }
+       return '/images/og-default.png'; // 預設 OG Image
+     }
+     ```
+
+  3. **在文章頁面使用**：
+     ```tsx
+     // ArticlePage.tsx
+     <Helmet>
+       <meta property="og:image" content={getArticleOgImage(metadata)} />
+       <meta name="twitter:card" content="summary_large_image" />
+     </Helmet>
+     ```
+
+  這個設計允許每篇文章有自己的社交媒體圖像，同時提供一個優雅的回退方案。
+</ArchitectureFeature>
+
+## 實際使用示例
+
+### 撰寫文章
+
+```jsx
+// content/articles/awesome-post/index.mdx
+# 精彩的文章標題
+
+這是一個不帶 frontmatter 的純 MDX 文章。
+
+<Demo text="這個組件只存在於此文章中" />
+
+接著我可以使用全局組件：
+
+<Alert type="info">這是一個全局共用的提醒組件</Alert>
+
+<CustomChart data={[10, 20, 30, 25, 40]} />
+```
+
+### 為文章添加專屬組件
+
+```tsx
+// content/articles/awesome-post/components/CustomChart.tsx
+import React from 'react';
+
+interface ChartProps {
+  data: number[];
+}
+
+export const CustomChart: React.FC<ChartProps> = ({ data }) => {
+  // 實現圖表邏輯
+  return (
+    <div className="chart-container">
+      {data.map((value, index) => (
+        <div 
+          key={index} 
+          className="bar" 
+          style={{ height: `${value * 2}px` }} 
+        />
+      ))}
+    </div>
+  );
+};
+```
+
+## 擴展能力
+
+這個架構設計具有高度的可擴展性：
+
+1. **擴展元數據**：只需在 `ArticleMetadata` 接口中添加新欄位
+2. **多級目錄**：可輕鬆擴展為支持分類、系列文章等多級目錄結構
+3. **插件系統**：可以基於現有組件註冊機制實現插件系統
+4. **國際化**：可以為每篇文章添加多語言版本
+5. **高級交互**：支持複雜的交互式組件，如資料可視化、交互式教程等
+
+## 結論
+
+這個架構解決了傳統部落格系統的許多痛點：
+
+- **避免 YAML 解析錯誤**：通過使用 TypeScript 元數據
+- **消除 hydration 問題**：通過純客戶端渲染
+- **實現組件隔離**：通過文章專屬組件機制
+- **優化部署體驗**：通過自動化中間件生成
+
+最重要的是，它為開發者提供了一個類型安全、模塊化且高度可擴展的框架，同時為讀者帶來流暢的閱讀體驗。
+
+<Alert type="success">
+  這個架構專為長期可維護性而設計，即使在數百篇文章和複雜交互內容的情況下也能保持性能和可管理性。
+</Alert>
