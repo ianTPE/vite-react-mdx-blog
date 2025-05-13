@@ -20,7 +20,12 @@ const AboutPage: React.FC = () => {
         <section className="mb-16">
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="md:flex">
-              <div className="md:w-2/5 bg-gradient-to-br from-indigo-100 to-blue-50 p-8 flex items-center justify-center">
+              <div className="md:w-2/5 p-8 flex items-center justify-center relative" style={{
+  backgroundImage: `url(/images/AboutHero.jpg)`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+}}>
+  <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/70 via-blue-900/40 to-transparent" />
                 <div className="w-56 h-56 rounded-full overflow-hidden ring-4 ring-white shadow-lg">
                   <img 
                     src="/images/author.png" 
