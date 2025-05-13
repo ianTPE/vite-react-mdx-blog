@@ -76,31 +76,31 @@ const HomePage: React.FC = () => {
           <MotionContainer className="grid grid-cols-2 md:grid-cols-5 gap-4 px-4" delay={0.3}>
             <TechStackIcon 
               name="React" 
-              version="v18" 
+              version="v18.2.0" 
               icon="⚛" 
               color="bg-blue-500"
             />
             <TechStackIcon 
               name="Vite" 
-              version="v4" 
+              version="v6.3.5" 
               icon="⚡" 
               color="bg-purple-600"
             />
             <TechStackIcon 
               name="TypeScript" 
-              version="v5" 
+              version="v5.8.3" 
               icon="TS" 
               color="bg-blue-700"
             />
             <TechStackIcon 
               name="Tailwind" 
-              version="v3" 
+              version="v3.4.1" 
               icon="🌊" 
               color="bg-teal-500"
             />
             <TechStackIcon 
               name="MDX" 
-              version="v2" 
+              version="v3.1.0" 
               icon="📄" 
               color="bg-yellow-500"
             />
