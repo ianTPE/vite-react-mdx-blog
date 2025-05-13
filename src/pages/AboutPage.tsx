@@ -128,7 +128,7 @@ const AboutPage: React.FC = () => {
                 <div className="flex items-start gap-4">
                   <div className="text-3xl">⚛️</div>
                   <div>
-                    <h3 className="text-lg font-semibold">React 18</h3>
+                    <h3 className="text-lg font-semibold">React v18.2.0</h3>
                     <p className="text-gray-700">
                       最新版本的 React 框架，利用 Hooks、Concurrent Mode 和 Suspense 等特性提升性能和開發體驗。
                     </p>
@@ -140,7 +140,7 @@ const AboutPage: React.FC = () => {
                 <div className="flex items-start gap-4">
                   <div className="text-3xl">⚡</div>
                   <div>
-                    <h3 className="text-lg font-semibold">Vite 4</h3>
+                    <h3 className="text-lg font-semibold">Vite v6.3.5</h3>
                     <p className="text-gray-700">
                       下一代前端構建工具，提供快速的開發環境和高效的構建過程。
                     </p>
@@ -152,7 +152,7 @@ const AboutPage: React.FC = () => {
                 <div className="flex items-start gap-4">
                   <div className="text-3xl">📄</div>
                   <div>
-                    <h3 className="text-lg font-semibold">MDX</h3>
+                    <h3 className="text-lg font-semibold">MDX v3.1.0</h3>
                     <p className="text-gray-700">
                       結合 Markdown 和 JSX 的強大文件格式，允許在文章中嵌入互動式 React 組件。
                     </p>
@@ -164,7 +164,7 @@ const AboutPage: React.FC = () => {
                 <div className="flex items-start gap-4">
                   <div className="text-3xl">🌊</div>
                   <div>
-                    <h3 className="text-lg font-semibold">Tailwind CSS</h3>
+                    <h3 className="text-lg font-semibold">Tailwind CSS v3.4.1</h3>
                     <p className="text-gray-700">
                       實用優先的 CSS 框架，提供高度可定制的設計系統，快速構建現代化 UI。
                     </p>
@@ -176,7 +176,7 @@ const AboutPage: React.FC = () => {
                 <div className="flex items-start gap-4">
                   <div className="text-3xl">🎭</div>
                   <div>
-                    <h3 className="text-lg font-semibold">Framer Motion</h3>
+                    <h3 className="text-lg font-semibold">Framer Motion v10.17.9</h3>
                     <p className="text-gray-700">
                       功能強大的 React 動畫庫，提供直觀的 API 來創建流暢的界面動畫。
                     </p>
@@ -188,7 +188,7 @@ const AboutPage: React.FC = () => {
                 <div className="flex items-start gap-4">
                   <div className="text-3xl">🔷</div>
                   <div>
-                    <h3 className="text-lg font-semibold">TypeScript</h3>
+                    <h3 className="text-lg font-semibold">TypeScript v5.8.3</h3>
                     <p className="text-gray-700">
                       JavaScript 的超集，添加了靜態類型系統，提高代碼質量和開發效率。
                     </p>
@@ -208,7 +208,7 @@ const AboutPage: React.FC = () => {
           
           <div className="inline-block">
             <a 
-              href="mailto:your-email@example.com" 
+              href="mailto:ian@wo94.top" 
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center text-lg font-medium"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
