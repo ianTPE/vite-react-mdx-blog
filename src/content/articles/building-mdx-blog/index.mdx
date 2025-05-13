@@ -1,0 +1,680 @@
+# 完整建置指南：React + Vite + TypeScript + MDX 部落格
+
+現代化的部落格系統需要強大的功能支援，同時保持開發和寫作的便利性。本文將帶您從零開始，一步步建立一個基於 React、Vite、TypeScript 和 MDX 的部落格系統，特別優化了以下方面：
+
+- **不使用 YAML frontmatter**：避免解析錯誤問題
+- **純客戶端渲染**：避免 SSR hydration 錯誤
+- **局部 MDX 組件**：讓每篇文章擁有專屬組件
+- **自動生成 Vercel Edge Middleware**：優化部署和快取策略
+
+<Alert type="info">
+  這個指南適用於已經熟悉 React 和 TypeScript 的開發者。如果您是新手，建議先了解這些基礎知識。
+</Alert>
+
+## 技術棧概述
+
+- **React**: UI 函式庫
+- **Vite**: 快速的前端構建工具
+- **TypeScript**: 類型安全保障
+- **MDX**: 在 Markdown 中使用 React 組件
+- **React Router**: 客戶端路由
+- **React Helmet Async**: 管理文檔頭部元數據
+
+## 完整建置步驟
+
+<CodeStep number={1} title="建立 Vite 專案">
+
+首先，讓我們建立一個全新的 Vite 專案：
+
+```bash
+npm create vite@latest vite-react-tsx-blog -- --template react-ts
+cd vite-react-tsx-blog
+```
+
+這個命令會使用 React 和 TypeScript 模板創建一個新的 Vite 專案。
+</CodeStep>
+
+<CodeStep number={2} title="安裝必要的依賴">
+
+接下來，我們需要安裝所有必要的依賴：
+
+```bash
+# 核心依賴
+npm install react-router-dom @mdx-js/react @mdx-js/rollup react-helmet-async
+
+# MDX 相關插件
+npm install -D remark-gfm rehype-highlight rehype-slug
+
+# 開發工具
+npm install -D glob @types/glob typescript ts-node
+```
+
+這些包提供了路由、MDX 支援、SEO 優化以及開發工具。
+</CodeStep>
+
+<CodeStep number={3} title="建立專案目錄結構">
+
+良好的目錄結構是專案成功的關鍵。執行以下命令創建基本目錄：
+
+```bash
+# 建立核心目錄
+mkdir -p src/components/ui
+mkdir -p src/components/layout
+mkdir -p src/components/mdx
+mkdir -p src/content/articles
+mkdir -p src/lib
+mkdir -p src/pages
+mkdir -p src/types
+mkdir -p scripts
+mkdir -p public/images
+```
+
+這個結構將組件、內容、工具函數和資源分離，便於管理。
+</CodeStep>
+
+<CodeStep number={4} title="配置 Vite 支援 MDX">
+
+配置 Vite 以支援 MDX 是關鍵步驟。更新或創建 `vite.config.ts` 文件：
+
+```typescript
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import mdx from '@mdx-js/rollup';
+import rehypeHighlight from 'rehype-highlight';
+import remarkGfm from 'remark-gfm';
+import rehypeSlug from 'rehype-slug';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [
+    mdx({
+      remarkPlugins: [remarkGfm],
+      rehypePlugins: [rehypeHighlight, rehypeSlug],
+      providerImportSource: '@mdx-js/react',
+    }),
+    react(),
+  ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+});
+```
+
+這個配置使用了幾個重要的插件：
+- `remarkGfm`: 支援 GitHub Flavored Markdown
+- `rehypeHighlight`: 代碼語法高亮
+- `rehypeSlug`: 為標題添加 ID，便於鏈接
+</CodeStep>
+
+<CodeStep number={5} title="更新 TypeScript 配置">
+
+為了讓 TypeScript 與我們的專案結構配合良好，更新 `tsconfig.json`：
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "types": ["vite/client", "node"]
+  },
+  "include": ["src", "scripts"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
+```
+
+這個配置啟用了路徑別名（`@/`）並設定了適當的 TypeScript 選項。
+</CodeStep>
+
+<CodeStep number={6} title="建立類型定義">
+
+類型安全是 TypeScript 專案的核心優勢。創建 `src/types/Article.ts`：
+
+```typescript
+import { ComponentType } from 'react';
+
+export interface ArticleMetadata {
+  title: string;
+  slug: string;
+  publishDate: string;
+  lastUpdated?: string;
+  summary: string;
+  tags: string[];
+  published: boolean;
+  coverImage?: string;
+  ogImage?: string;
+}
+
+export interface ArticleWithContent {
+  metadata: ArticleMetadata;
+  Content: ComponentType;
+  components: Record<string, ComponentType<any>>;
+}
+```
+
+這些類型定義描述了我們部落格文章的結構，包括元數據和內容。
+</CodeStep>
+
+<CodeStep number={7} title="建立 MDX 相關工具函數">
+
+接下來，我們需要一些核心工具函數來處理 MDX 內容和組件。
+
+**組件註冊管理器** (`src/lib/component-registry.ts`):
+
+```typescript
+import React, { createElement } from 'react';
+
+export const createComponentRegistry = (
+  globalComponents: Record<string, React.ComponentType<any>> = {},
+  localComponents: Record<string, React.ComponentType<any>> = {}
+) => {
+  // 合併全局組件和局部組件，優先使用局部組件
+  const registry = { ...globalComponents, ...localComponents };
+  
+  // 錯誤處理組件
+  const FallbackComponent = ({ name, ...props }: { name: string, [key: string]: any }) => {
+    console.warn(`Component "${name}" not found. Please check if it's registered.`);
+    return createElement('div', { 
+      style: { 
+        border: '1px solid #ff6b6b',
+        background: '#fff0f0', 
+        padding: '8px 12px',
+        borderRadius: '4px'
+      }
+    }, `組件 "${name}" 未找到`);
+  };
+  
+  // 代理組件查找，實現更好的錯誤處理
+  return new Proxy(registry, {
+    get: (target, prop: string) => {
+      return target[prop] || ((props: any) => createElement(FallbackComponent, { name: prop, ...props }));
+    }
+  });
+};
+```
+
+**文章工具函數** (`src/lib/article-utils.ts`):
+
+```typescript
+import { ArticleMetadata, ArticleWithContent } from '@/types/Article';
+import { createComponentRegistry } from './component-registry';
+
+// 使用 Vite 的 import.meta.glob 動態導入
+const metadataModules = import.meta.glob('../content/articles/*/metadata.ts', { eager: true });
+const contentModules = import.meta.glob('../content/articles/*/index.mdx');
+const componentModules = import.meta.glob('../content/articles/*/components/index.ts');
+const globalComponentsModule = import.meta.glob('../components/mdx/index.ts', { eager: true });
+
+// 獲取全局組件
+const getGlobalComponents = () => {
+  const globalComponentsPath = Object.keys(globalComponentsModule)[0];
+  if (globalComponentsPath) {
+    return (globalComponentsModule[globalComponentsPath] as any).default || {};
+  }
+  return {};
+};
+
+// 獲取所有文章元數據 (用於文章列表)
+export function getAllArticles() {
+  const articles: ArticleMetadata[] = [];
+  
+  for (const path in metadataModules) {
+    const module = metadataModules[path] as { default: ArticleMetadata };
+    if (module.default && module.default.published) {
+      articles.push(module.default);
+    }
+  }
+  
+  // 按日期排序，最新的優先
+  return articles.sort((a, b) => 
+    new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime()
+  );
+}
+
+// 根據 slug 載入特定文章
+export async function getArticleBySlug(slug: string): Promise<ArticleWithContent | null> {
+  // 尋找此 slug 對應的元數據路徑
+  const metadataPath = Object.keys(metadataModules).find(
+    path => path.includes(`/${slug}/metadata.ts`)
+  );
+  
+  if (!metadataPath) return null;
+  
+  // 獲取元數據
+  const metadata = (metadataModules[metadataPath] as { default: ArticleMetadata }).default;
+  
+  // 載入 MDX 內容
+  const contentPath = metadataPath.replace('metadata.ts', 'index.mdx');
+  const ContentModule = await contentModules[contentPath]();
+  
+  // 載入該文章的專屬組件 (如果有)
+  const componentsPath = metadataPath.replace('metadata.ts', 'components/index.ts');
+  let articleComponents = {};
+  
+  try {
+    if (componentModules[componentsPath]) {
+      const componentsModule = await componentModules[componentsPath]();
+      articleComponents = componentsModule.default || {};
+    }
+  } catch (error) {
+    console.warn(`Failed to load components for article "${slug}"`, error);
+  }
+  
+  // 建立組件註冊表，結合全局組件和文章專屬組件
+  const globalComponents = getGlobalComponents();
+  const components = createComponentRegistry(globalComponents, articleComponents);
+  
+  return {
+    metadata,
+    Content: ContentModule.default,
+    components
+  };
+}
+
+// 獲取文章的 OG Image URL
+export function getArticleOgImage(article: ArticleMetadata): string {
+  if (article.ogImage) {
+    return `/content/articles/${article.slug}/${article.ogImage}`;
+  }
+  return '/images/og-default.png'; // 預設 OG Image
+}
+```
+
+這些工具函數處理文章的載入、組件註冊和 OG Image 獲取。
+</CodeStep>
+
+<CodeStep number={8} title="建立全局 MDX 組件">
+
+現在，讓我們創建一些可以在所有 MDX 文章中使用的全局組件。
+
+**全局組件索引** (`src/components/mdx/index.ts`):
+
+```typescript
+import { Alert } from './Alert';
+import { CodeBlock } from './CodeBlock';
+
+// 導出全局 MDX 組件
+export default {
+  Alert,
+  CodeBlock,
+  // 可增加更多全局組件...
+  
+  // 覆寫原生 HTML 元素
+  h1: (props: any) => <h1 className="text-3xl font-bold mb-4" {...props} />,
+  h2: (props: any) => <h2 className="text-2xl font-bold mb-3 mt-6" {...props} />,
+  a: (props: any) => <a className="text-blue-600 hover:underline" {...props} />,
+};
+```
+
+**Alert 組件** (`src/components/mdx/Alert.tsx`):
+
+```typescript
+import React from 'react';
+
+interface AlertProps {
+  children: React.ReactNode;
+  type?: 'info' | 'warning' | 'error' | 'success';
+}
+
+export const Alert: React.FC<AlertProps> = ({ children, type = 'info' }) => {
+  const styles = {
+    info: 'bg-blue-50 border-blue-500 text-blue-700',
+    warning: 'bg-yellow-50 border-yellow-500 text-yellow-700',
+    error: 'bg-red-50 border-red-500 text-red-700',
+    success: 'bg-green-50 border-green-500 text-green-700'
+  };
+
+  return (
+    <div className={`border-l-4 p-4 my-4 ${styles[type]}`}>
+      {children}
+    </div>
+  );
+};
+```
+
+這些組件可以在任何 MDX 文件中使用，提供一致的展示效果。
+</CodeStep>
+
+<CodeStep number={9} title="建立頁面組件">
+
+接下來，讓我們建立主要的頁面組件：
+
+**佈局組件** (`src/components/layout/Layout.tsx`):
+
+```tsx
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+interface LayoutProps {
+  children: React.ReactNode;
+}
+
+const Layout: React.FC<LayoutProps> = ({ children }) => {
+  return (
+    <div className="min-h-screen flex flex-col">
+      <header className="bg-slate-800 text-white py-4">
+        <div className="container mx-auto px-4">
+          <nav className="flex justify-between items-center">
+            <Link to="/" className="text-xl font-bold">My MDX Blog</Link>
+            <div className="space-x-4">
+              <Link to="/" className="hover:underline">Home</Link>
+              <a href="https://github.com/your-username/your-repo" className="hover:underline">GitHub</a>
+            </div>
+          </nav>
+        </div>
+      </header>
+      
+      <main className="container mx-auto px-4 py-8 flex-grow">
+        {children}
+      </main>
+      
+      <footer className="bg-slate-800 text-white py-6">
+        <div className="container mx-auto px-4 text-center">
+          <p>© {new Date().getFullYear()} My MDX Blog. Built with React, Vite, TypeScript, and MDX.</p>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default Layout;
+```
+
+**文章頁面** (`src/pages/ArticlePage.tsx`):
+
+```tsx
+import React from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { getArticleBySlug, getArticleOgImage } from '@/lib/article-utils';
+import { MDXProvider } from '@mdx-js/react';
+import { Helmet } from 'react-helmet-async';
+import Layout from '@/components/layout/Layout';
+
+const ArticlePage: React.FC = () => {
+  const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
+  const [article, setArticle] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+  
+  React.useEffect(() => {
+    async function loadArticle() {
+      setLoading(true);
+      if (!slug) return;
+      
+      try {
+        const articleData = await getArticleBySlug(slug);
+        if (!articleData) {
+          navigate('/404', { replace: true });
+          return;
+        }
+        setArticle(articleData);
+      } catch (error) {
+        console.error('Error loading article:', error);
+        navigate('/404', { replace: true });
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    loadArticle();
+  }, [slug, navigate]);
+  
+  if (loading) return (
+    <Layout>
+      <div className="max-w-3xl mx-auto py-8">載入中...</div>
+    </Layout>
+  );
+  
+  if (!article) return (
+    <Layout>
+      <div className="max-w-3xl mx-auto py-8">找不到文章</div>
+    </Layout>
+  );
+  
+  const { metadata, Content, components } = article;
+  const ogImageUrl = getArticleOgImage(metadata);
+  
+  return (
+    <Layout>
+      <Helmet>
+        <title>{metadata.title} | My MDX Blog</title>
+        <meta name="description" content={metadata.summary} />
+        <meta property="og:title" content={metadata.title} />
+        <meta property="og:description" content={metadata.summary} />
+        <meta property="og:image" content={ogImageUrl} />
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Helmet>
+      
+      <article className="max-w-3xl mx-auto prose lg:prose-xl">
+        <h1>{metadata.title}</h1>
+        <div className="text-sm text-gray-500 mb-8">
+          <time dateTime={metadata.publishDate}>
+            {new Date(metadata.publishDate).toLocaleDateString('zh-TW')}
+          </time>
+          <div className="mt-2">
+            {metadata.tags.map(tag => (
+              <span key={tag} className="mr-2 inline-block px-2 py-1 bg-gray-100 rounded-full text-xs">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+        
+        <MDXProvider components={components}>
+          <Content />
+        </MDXProvider>
+      </article>
+    </Layout>
+  );
+};
+
+export default ArticlePage;
+```
+</CodeStep>
+
+<CodeStep number={10} title="建立中間件生成腳本">
+
+自動生成 Vercel Edge Middleware 是我們的特色功能之一。創建 `scripts/generate-middleware.ts`:
+
+```typescript
+import fs from 'fs';
+import path from 'path';
+import glob from 'glob';
+
+async function generateMiddleware() {
+  // 找出所有元數據檔案
+  const metadataFiles = glob.sync('src/content/articles/*/metadata.ts');
+  
+  // 從檔案內容提取資訊
+  const articles = metadataFiles.map(file => {
+    const dirName = path.dirname(file);
+    const slug = path.basename(dirName);
+    
+    // 檢查是否有自訂 OG Image
+    const hasCustomOgImage = fs.existsSync(path.join(dirName, 'og-image.png'));
+    
+    return {
+      slug,
+      hasCustomOgImage
+    };
+  });
+  
+  // 生成中間件內容
+  const middlewareContent = `
+// 自動生成的 Vercel Edge 中間件
+// 生成於: ${new Date().toISOString()}
+
+import { NextResponse } from 'next/server';
+
+export const config = {
+  matcher: ['/articles/:slug*', '/og-image/:slug*'],
+};
+
+export default function middleware(request) {
+  const url = new URL(request.url);
+  const pathname = url.pathname;
+  
+  // 處理文章路由
+  if (pathname.startsWith('/articles/')) {
+    const slug = pathname.split('/')[2];
+    const validSlugs = ${JSON.stringify(articles.map(a => a.slug))};
+    
+    if (validSlugs.includes(slug)) {
+      // 文章的快取控制
+      const response = NextResponse.next();
+      response.headers.set('Cache-Control', 'public, max-age=3600');
+      return response;
+    }
+  }
+  
+  // 處理 OG Image 請求
+  if (pathname.startsWith('/og-image/')) {
+    const slug = pathname.split('/')[2];
+    const articleData = ${JSON.stringify(articles)}.find(a => a.slug === slug);
+    
+    if (articleData) {
+      const response = NextResponse.next();
+      // 設定更長的快取時間，因為 OG Image 不常變更
+      response.headers.set('Cache-Control', 'public, max-age=86400');
+      return response;
+    }
+    
+    // 重定向到預設 OG Image
+    return NextResponse.rewrite(new URL('/images/og-default.png', request.url));
+  }
+  
+  return NextResponse.next();
+}
+`;
+  
+  // 寫入到專案根目錄的 middleware.ts
+  fs.writeFileSync('middleware.ts', middlewareContent);
+  console.log('✅ 已生成 middleware.ts');
+}
+
+generateMiddleware().catch(console.error);
+```
+
+這個腳本會掃描所有文章，生成中間件來處理路由和快取控制。
+</CodeStep>
+
+<CodeStep number={11} title="更新 package.json">
+
+在 package.json 中添加中間件生成腳本：
+
+```json
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run generate-middleware && tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "generate-middleware": "tsx scripts/generate-middleware.ts"
+  }
+}
+```
+
+這樣，每次建置時都會自動生成最新的中間件。
+</CodeStep>
+
+<CodeStep number={12} title="添加範例文章">
+
+最後，我們可以添加一些範例文章來測試系統：
+
+**範例文章元數據** (`src/content/articles/getting-started/metadata.ts`):
+
+```typescript
+import { ArticleMetadata } from '@/types/Article';
+
+const metadata: ArticleMetadata = {
+  title: '開始使用 MDX 建立部落格',
+  slug: 'getting-started',
+  publishDate: '2025-05-13',
+  summary: '學習如何使用 React + Vite + TypeScript + MDX 建立現代化的部落格',
+  tags: ['react', 'vite', 'mdx', '教學'],
+  published: true,
+};
+
+export default metadata;
+```
+
+**範例文章內容** (`src/content/articles/getting-started/index.mdx`):
+
+```mdx
+# 開始使用 MDX 建立部落格
+
+歡迎來到我的 MDX 部落格！這篇文章將介紹如何使用 React + Vite + TypeScript + MDX 建立現代化的部落格網站。
+
+## 什麼是 MDX？
+
+MDX 是一種強大的格式，它讓你可以在 Markdown 內容中直接使用 React 組件。
+
+<Alert type="info">
+  MDX 結合了 Markdown 的簡潔語法和 React 組件的靈活性，是建立內容豐富的部落格的理想選擇。
+</Alert>
+
+## 為什麼不使用 frontmatter?
+
+傳統上，很多 Markdown 部落格使用 YAML frontmatter 來存儲元數據，但這有幾個缺點：
+
+1. 解析 YAML 可能出現錯誤
+2. 沒有類型檢查
+3. 難以擴展複雜數據結構
+
+我們的解決方案是使用 TypeScript 檔案來存儲元數據，這樣可以獲得完整的類型安全性。
+```
+</CodeStep>
+
+<CodeStep number={13} title="執行專案">
+
+完成所有設置後，您可以啟動專案：
+
+```bash
+# 生成中間件
+npm run generate-middleware
+
+# 啟動開發伺服器
+npm run dev
+```
+
+訪問 http://localhost:5173/ 查看你的部落格！
+</CodeStep>
+
+## 總結與進階技巧
+
+這個部落格架構結合了現代前端技術的優勢，特別是：
+
+1. **類型安全**：通過 TypeScript 確保元數據和組件屬性的類型正確
+2. **組件隔離**：文章專屬組件機制避免了全局污染
+3. **性能優化**：客戶端渲染避免了 SSR hydration 問題
+4. **自動化**：中間件自動生成減少了手動維護負擔
+
+以下是一些進階建議，可以進一步增強您的部落格：
+
+- **添加 Tailwind CSS**：提供更強大的樣式控制
+- **實現文章搜索**：基於標籤和內容關鍵詞
+- **添加評論系統**：集成 Giscus 或其他評論服務
+- **改進圖片處理**：添加圖片優化和懶加載
+
+<Alert type="success">
+  恭喜！您現在擁有了一個現代化、類型安全且靈活的部落格系統。通過這個架構，您可以專注於創作內容，同時享受最佳的開發體驗。
+</Alert>
