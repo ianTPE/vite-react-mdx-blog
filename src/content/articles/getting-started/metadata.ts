@@ -7,6 +7,7 @@ const metadata: ArticleMetadata = {
   summary: '學習如何使用 React + Vite + TypeScript + MDX 建立現代化的部落格',
   tags: ['react', 'vite', 'mdx', '教學'],
   published: true,
+  coverImage: '/images/getting-started.jpg',
 };
 
 export default metadata;
