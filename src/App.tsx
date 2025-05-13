@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import HomePage from '@/pages/HomePage';
+import ArticlesPage from '@/pages/ArticlesPage';
 import ArticlePage from '@/pages/ArticlePage';
 import Layout from '@/components/layout/Layout';
 
@@ -10,6 +11,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/articles" element={<ArticlesPage />} />
           <Route path="/articles/:slug" element={<ArticlePage />} />
           <Route path="*" element={
             <Layout>
