@@ -69,17 +69,18 @@ const ArticlePage: React.FC = () => {
         <div className="flex items-center mb-6">
           <div className="w-10 h-10 rounded-full overflow-hidden mr-4">
             <img 
-              src="/images/author.png" 
-              alt="Ian" 
+              src={metadata.author?.avatar || "/images/avatars/default.png"} 
+              alt={metadata.author?.name || "Author"} 
               className="w-full h-full object-cover"
               onError={(e) => {
                 const target = e.target as HTMLElement;
-                target.outerHTML = `<div class="w-full h-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">I</div>`;
+                const initials = metadata.author?.name?.charAt(0) || "A";
+                target.outerHTML = `<div class="w-full h-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">${initials}</div>`;
               }}
             />
           </div>
           <div>
-            <div className="font-medium">Ian</div>
+            <div className="font-medium">{metadata.author?.name || "匿名作者"}</div>
             <time dateTime={metadata.publishDate} className="text-gray-500 text-sm">
               {new Date(metadata.publishDate).toLocaleDateString('zh-TW', {
                 year: 'numeric',

@@ -8,6 +8,10 @@ const metadata: ArticleMetadata = {
   tags: ['react', 'vite', 'mdx', '教學'],
   published: true,
   coverImage: '/images/getting-started.jpg',
+  author: {
+    name: 'Ian Chou',
+    avatar: '/images/avatars/default.png'
+  },
 };
 
 export default metadata;

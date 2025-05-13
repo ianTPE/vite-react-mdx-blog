@@ -11,6 +11,10 @@ const metadata: ArticleMetadata = {
   coverImage: '/images/first-post.jpg',
   // Optional: override default OG image with a post-specific one
   // ogImage: '/first-post/og-image.png',
+  author: {
+    name: 'Ian Chou',
+    avatar: '/images/avatars/default.png'
+  },
 };
 
 export default metadata;

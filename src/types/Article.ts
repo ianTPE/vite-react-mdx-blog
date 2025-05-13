@@ -10,6 +10,10 @@ export interface ArticleMetadata {
   published: boolean;
   coverImage?: string;
   ogImage?: string;
+  author?: {
+    name: string;
+    avatar?: string;
+  };
 }
 
 export interface ArticleWithContent {
