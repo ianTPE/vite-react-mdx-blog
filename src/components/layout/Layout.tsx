@@ -88,7 +88,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         )}
       </header>
       
-      <main className="flex-grow">
+      <main className="flex-grow container mx-auto px-4">
         {children}
       </main>
       

@@ -52,7 +52,7 @@ const ArticlePage: React.FC = () => {
   return (
     <Layout>
       <Helmet>
-        <title>{metadata.title} | My MDX Blog</title>
+        <title>{metadata.title} | Ian's Vibe Coding Blog</title>
         <meta name="description" content={metadata.summary} />
         <meta property="og:title" content={metadata.title} />
         <meta property="og:description" content={metadata.summary} />
@@ -61,7 +61,7 @@ const ArticlePage: React.FC = () => {
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
       
-      <article className="max-w-3xl mx-auto">
+      <article className="max-w-4xl mx-auto pt-16 pb-12">
         {/* 文章標題 */}
         <h1 className="text-4xl font-bold mb-4">{metadata.title}</h1>
         
