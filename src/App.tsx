@@ -3,6 +3,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import HomePage from '@/pages/HomePage';
 import ArticlesPage from '@/pages/ArticlesPage';
 import ArticlePage from '@/pages/ArticlePage';
+import AboutPage from '@/pages/AboutPage';
 import Layout from '@/components/layout/Layout';
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/articles" element={<ArticlesPage />} />
           <Route path="/articles/:slug" element={<ArticlePage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="*" element={
             <Layout>
               <div className="max-w-3xl mx-auto py-8 text-center">
