@@ -1,0 +1,48 @@
+# 開始使用 MDX 建立部落格
+
+歡迎來到我的 MDX 部落格！這篇文章將介紹如何使用 React + Vite + TypeScript + MDX 建立現代化的部落格網站。
+
+## 什麼是 MDX？
+
+MDX 是一種強大的格式，它讓你可以在 Markdown 內容中直接使用 React 組件。
+
+<Alert type="info">
+  MDX 結合了 Markdown 的簡潔語法和 React 組件的靈活性，是建立內容豐富的部落格的理想選擇。
+</Alert>
+
+## 為什麼不使用 frontmatter?
+
+傳統上，很多 Markdown 部落格使用 YAML frontmatter 來存儲元數據，但這有幾個缺點：
+
+1. 解析 YAML 可能出現錯誤
+2. 沒有類型檢查
+3. 難以擴展複雜數據結構
+
+我們的解決方案是使用 TypeScript 檔案來存儲元數據，這樣可以獲得完整的類型安全性。
+
+## 文章專屬組件
+
+這個系統的另一個優點是可以為每篇文章建立專屬組件。看看這個只在此文章中使用的卡片組件：
+
+<DemoCard title="文章專屬組件示例">
+  這個 `DemoCard` 組件僅在此文章中定義和使用，不會影響其他文章。
+  
+  它完全隔離，避免了全局命名衝突問題。
+</DemoCard>
+
+## 程式碼示範
+
+當然，部落格需要良好的程式碼格式化支援：
+
+```typescript
+// 這是一個 TypeScript 範例
+interface BlogPost {
+  title: string;
+  slug: string;
+  publishDate: Date;
+}
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString('zh-TW');
+}
+```
