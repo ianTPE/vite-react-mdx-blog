@@ -61,24 +61,66 @@ const ArticlePage: React.FC = () => {
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
       
-      <article className="max-w-3xl mx-auto prose lg:prose-xl">
-        <h1>{metadata.title}</h1>
-        <div className="text-sm text-gray-500 mb-8">
-          <time dateTime={metadata.publishDate}>
-            {new Date(metadata.publishDate).toLocaleDateString('zh-TW')}
-          </time>
-          <div className="mt-2">
+      <article className="max-w-3xl mx-auto">
+        {/* 文章標題 */}
+        <h1 className="text-4xl font-bold mb-4">{metadata.title}</h1>
+        
+        {/* 文章信息 */}
+        <div className="flex items-center mb-6">
+          <div className="w-10 h-10 rounded-full overflow-hidden mr-4">
+            <img 
+              src="/images/author.png" 
+              alt="Ian" 
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLElement;
+                target.outerHTML = `<div class="w-full h-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">I</div>`;
+              }}
+            />
+          </div>
+          <div>
+            <div className="font-medium">Ian</div>
+            <time dateTime={metadata.publishDate} className="text-gray-500 text-sm">
+              {new Date(metadata.publishDate).toLocaleDateString('zh-TW', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </time>
+          </div>
+          <div className="ml-auto flex gap-2">
             {metadata.tags.map(tag => (
-              <span key={tag} className="mr-2 inline-block px-2 py-1 bg-gray-100 rounded-full text-xs">
+              <span key={tag} className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
                 {tag}
               </span>
             ))}
           </div>
         </div>
         
-        <MDXProvider components={components}>
-          <Content />
-        </MDXProvider>
+        {/* 封面圖片 */}
+        {metadata.coverImage && (
+          <div className="mb-8 rounded-xl overflow-hidden shadow-lg">
+            <img 
+              src={metadata.coverImage} 
+              alt={metadata.title}
+              className="w-full h-auto object-cover"
+            />
+          </div>
+        )}
+        
+        {/* 提示信息 */}
+        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 my-6 rounded-r">
+          <p className="text-blue-700">
+            這篇指南適用於已經熟悉 React 和 TypeScript 的開發者，如果您是新手，建議先了解基础知識。
+          </p>
+        </div>
+        
+        {/* 文章內容 */}
+        <div className="prose lg:prose-xl max-w-none">
+          <MDXProvider components={components}>
+            <Content />
+          </MDXProvider>
+        </div>
       </article>
     </Layout>
   );
