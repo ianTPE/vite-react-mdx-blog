@@ -20,9 +20,13 @@ const AboutPage: React.FC = () => {
         <section className="mb-16">
           <div className="bg-white rounded-xl shadow-lg overflow-hidden md:flex p-0">
             <div className="md:w-1/3 bg-gradient-to-br from-blue-600 to-indigo-700 p-8 flex items-center justify-center">
-              <div className="w-48 h-48 rounded-full bg-white/10 flex items-center justify-center text-white text-6xl font-bold">
-                I
-              </div>
+              <div className="w-48 h-48 rounded-full bg-white/10 flex items-center justify-center overflow-hidden">
+  <img
+    src="/images/author.png"
+    alt="Ian 作者大頭照"
+    className="w-full h-full object-cover rounded-full border-4 border-white/20 shadow-lg"
+  />
+</div>
             </div>
             
             <div className="p-8 md:p-12 md:w-2/3">
@@ -37,7 +41,7 @@ const AboutPage: React.FC = () => {
               
               <div className="flex gap-4">
                 <a 
-                  href="https://github.com/yourusername" 
+                  href="https://github.com/ianTPE" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
@@ -49,7 +53,7 @@ const AboutPage: React.FC = () => {
                 </a>
                 
                 <a 
-                  href="mailto:your-email@example.com" 
+                  href="mailto:ian@wo94.top" 
                   className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -197,7 +201,7 @@ const AboutPage: React.FC = () => {
           
           <div className="inline-block">
             <a 
-              href="mailto:your-email@example.com" 
+              href="mailto:ian@wo94.top" 
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center text-lg font-medium"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
