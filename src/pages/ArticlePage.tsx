@@ -61,7 +61,7 @@ const ArticlePage: React.FC = () => {
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
       
-      <article className="max-w-4xl mx-auto pt-16 pb-12">
+      <article className="max-w-4xl mx-auto pt-10 pb-12">
         {/* 文章標題 */}
         <h1 className="text-4xl font-bold mb-4">{metadata.title}</h1>
         
@@ -116,10 +116,12 @@ const ArticlePage: React.FC = () => {
         </div>
         
         {/* 文章內容 */}
-        <div className="prose lg:prose-xl max-w-none">
-          <MDXProvider components={components}>
-            <Content />
-          </MDXProvider>
+        <div className="article-content">
+          <div className="prose lg:prose-xl w-full">
+            <MDXProvider components={components}>
+              <Content />
+            </MDXProvider>
+          </div>
         </div>
       </article>
     </Layout>

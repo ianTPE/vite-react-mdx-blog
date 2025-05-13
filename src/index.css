@@ -38,8 +38,12 @@ body {
 
 /* Prose styling for MDX content */
 .prose {
-  max-width: 65ch;
   color: #374151;
+}
+
+.article-content .prose {
+  width: 100%;
+  max-width: none;
 }
 
 .prose h1 {
