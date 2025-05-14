@@ -20,10 +20,16 @@ const getGlobalComponents = () => {
 export function getAllArticles() {
   const articles: ArticleMetadata[] = [];
   
+  // 打印所有可用的元數據模組路徑
+  console.log('Available metadata module paths:', Object.keys(metadataModules));
+  
   for (const path in metadataModules) {
     const module = metadataModules[path] as { default: ArticleMetadata };
+    console.log(`Processing path: ${path}, metadata:`, module.default);
     if (module.default && module.default.published) {
       articles.push(module.default);
+    } else {
+      console.log(`Skipping article at ${path} - not published or no default export`);
     }
   }
   

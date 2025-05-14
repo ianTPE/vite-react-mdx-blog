@@ -1,4 +1,4 @@
-import { ArticleMetadata } from '../../types/Article';
+import { ArticleMetadata } from '@/types/Article';
 
 const metadata: ArticleMetadata = {
   title: 'My First Blog Post',

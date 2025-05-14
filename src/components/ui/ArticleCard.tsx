@@ -32,18 +32,19 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article }) => {
           <div className="mt-auto pt-4 border-t border-gray-100 flex items-center">
             <div className="w-8 h-8 rounded-full overflow-hidden">
               <img 
-                src="/images/author.png" 
-                alt="Ian" 
+                src={article.author?.avatar || "/images/avatars/default.png"} 
+                alt={article.author?.name || "Author"} 
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   // 如果圖片加載失敗，顯示備用的文字頭像
                   const target = e.target as HTMLElement;
-                  target.outerHTML = `<div class="w-full h-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">I</div>`;
+                  const initials = article.author?.name?.charAt(0) || "A";
+                  target.outerHTML = `<div class="w-full h-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">${initials}</div>`;
                 }}
               />
             </div>
             <div className="ml-2">
-              <span className="text-sm text-gray-800">Ian</span>
+              <span className="text-sm text-gray-800">{article.author?.name || "匿名作者"}</span>
               <time dateTime={article.publishDate} className="text-xs text-gray-500 block">
                 {new Date(article.publishDate).toLocaleDateString('zh-TW', {
                   year: 'numeric',

@@ -3,8 +3,8 @@ import { ArticleMetadata } from '@/types/Article';
 const metadata: ArticleMetadata = {
   title: '使用 MDX 建立部落格',
   slug: 'mdx-blog-setup',
-  publishDate: '2024-05-11',
-  lastUpdated: '2024-05-11',
+  publishDate: '2025-05-11',
+  lastUpdated: '2025-05-11',
   summary: '了解如何整合 MDX 到 React 專案中，讓您可以在 Markdown 中使用 React 組件，打造互動性更高的博客內容。',
   tags: ['MDX', 'Next.js', 'Blog'],
   published: true,
@@ -16,3 +16,5 @@ const metadata: ArticleMetadata = {
     avatar: '/images/avatars/default.png'
   },
 };
+
+export default metadata;
