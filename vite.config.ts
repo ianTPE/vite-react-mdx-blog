@@ -52,12 +52,25 @@ export default defineConfig({
       remarkPlugins: [remarkGfm],
       rehypePlugins: [rehypeHighlight, rehypeSlug],
       providerImportSource: '@mdx-js/react',
+      jsxImportSource: 'react', // Add JSX import source
+      development: process.env.NODE_ENV !== 'production', // Enable development mode for better error messages
     }),
     react(),
   ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+    },
+  },
+  optimizeDeps: {
+    include: ['@mdx-js/react', 'react', 'react-dom'],
+  },
+  server: {
+    watch: {
+      usePolling: true, // Improve file watching in some environments
+    },
+    hmr: {
+      overlay: true, // Show errors on screen
     },
   },
 });
