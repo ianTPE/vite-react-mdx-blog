@@ -1,5 +1,3 @@
-import { CodeBlock, Alert, Details, YouTube, Tweet } from './components'
-
 # 使用 MDX 建立部落格
 
 MDX 是一個強大的格式，它允許你在 Markdown 文件中直接使用 JSX。這使得創建互動式的文檔和部落格文章變得非常容易。在這篇文章中，我們將學習如何在 React 專案中設置 MDX，尤其是在 Vite 及 React Router 環境中。
@@ -16,15 +14,15 @@ MDX 結合了 Markdown 的簡潔性和 React 組件的強大功能。你可以�
 
 ### 1. 安裝必要的套件
 
-<CodeBlock language="bash">
+```bash
 npm install @mdx-js/rollup @mdx-js/react rehype-highlight rehype-slug remark-gfm
-</CodeBlock>
+```
 
 ### 2. 配置 Vite
 
 更新 `vite.config.ts`：
 
-<CodeBlock language="typescript">
+```typescript
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import mdx from '@mdx-js/rollup';
@@ -48,13 +46,13 @@ export default defineConfig({
     },
   },
 });
-</CodeBlock>
+```
 
 ### 3. 更新 Tailwind 配置
 
 確保 Tailwind 能處理 MDX 檔案：
 
-<CodeBlock language="javascript">
+```javascript
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -65,7 +63,8 @@ export default {
     extend: {},
   },
   plugins: [],
-}</CodeBlock>
+}
+```
 
 ## 創建 MDX 內容
 
@@ -73,7 +72,7 @@ export default {
 
 創建一個 `example.mdx` 檔案：
 
-<CodeBlock language="mdx">
+```mdx
 # 歡迎使用 MDX
 
 這是一段普通的 Markdown 內容。
@@ -81,11 +80,11 @@ export default {
 <div className="bg-blue-100 p-4 rounded">
   這是一個 React 組件！
 </div>
-</CodeBlock>
+```
 
 ### 使用自定義組件
 
-<CodeBlock language="mdx">
+```mdx
 import CustomButton from '../components/CustomButton'
 
 # 互動式內容
@@ -95,7 +94,7 @@ import CustomButton from '../components/CustomButton'
 <CustomButton onClick={() => alert('Hello MDX!')}>
   點我
 </CustomButton>
-</CodeBlock>
+```
 
 ## 進階用法
 
@@ -103,7 +102,7 @@ import CustomButton from '../components/CustomButton'
 
 你可以覆寫默認的 Markdown 元素：
 
-<CodeBlock language="tsx">
+```tsx
 const components = {
   h1: (props) => <h1 className="text-4xl font-bold" {...props} />,
   p: (props) => <p className="my-4" {...props} />,
@@ -117,13 +116,13 @@ export default function MDXPage() {
     </MDXProvider>
   )
 }
-</CodeBlock>
+```
 
 ### 2. Front Matter 支援
 
 使用 gray-matter 解析 MDX 的元資料：
 
-<CodeBlock language="typescript">
+```typescript
 import matter from 'gray-matter'
 import fs from 'fs'
 
@@ -138,23 +137,23 @@ export function getPostData(slug: string) {
     content,
   }
 }
-</CodeBlock>
+```
 
 ### 3. 程式碼高亮
 
 整合 Prism.js 或 highlight.js：
 
-<CodeBlock language="bash">
+```bash
 npm install @mapbox/rehype-prism
-</CodeBlock>
+```
 
-<CodeBlock language="javascript">
+```javascript
 const withMDX = require('@next/mdx')({
   options: {
     rehypePlugins: [require('@mapbox/rehype-prism')],
   },
 })
-</CodeBlock>
+```
 
 ## 建立部落格結構
 
@@ -181,7 +180,7 @@ src/
 
 ### 2. 動態路由 (React Router)
 
-<CodeBlock language="tsx">
+```tsx
 // src/App.tsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import HomePage from '@/pages/HomePage';
@@ -199,9 +198,9 @@ function App() {
     </BrowserRouter>
   );
 }
-</CodeBlock>
+```
 
-<CodeBlock language="tsx">
+```tsx
 // src/pages/ArticlePage.tsx
 import { useParams } from 'react-router-dom';
 import { getArticleBySlug } from '@/lib/article-utils';
@@ -235,7 +234,7 @@ export default function ArticlePage() {
     </article>
   );
 }
-</CodeBlock>
+```
 
 ## 優化建議
 
@@ -244,7 +243,7 @@ export default function ArticlePage() {
 3. **效能**：實施代碼分割和延遲加載
 4. **可訪問性**：確保所有互動元素都是可訪問的
 
-<CodeBlock language="tsx">
+```tsx
 import { Helmet } from 'react-helmet-async';
 
 // 在 ArticlePage 組件中
@@ -260,7 +259,7 @@ return (
     <article>{/* 文章內容 */}</article>
   </>
 );
-</CodeBlock>
+```
 
 ## 部署考量
 
@@ -268,7 +267,7 @@ return (
 
 使用 Vercel 部署 Vite 專案，需要正確設定 `vercel.json`：
 
-<CodeBlock language="json">
+```json
 {
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
@@ -277,13 +276,13 @@ return (
   "installCommand": "npm install",
   "outputDirectory": "dist"
 }
-</CodeBlock>
+```
 
 ### 其他平台
 
 確保構建過程包含所有必要的依賴：
 
-<CodeBlock language="json">
+```json
 {
   "scripts": {
     "dev": "npm run generate-articles && vite",
@@ -292,7 +291,7 @@ return (
     "generate-articles": "tsx scripts/generate-articles.ts"
   }
 }
-</CodeBlock>
+```
 
 ## 部落格實戰工作流程建議
 
@@ -313,9 +312,7 @@ return (
 
 ## MDX 3 新版重點與升級須知
 
-<Alert type="info">
-隨著 2024 年底 MDX 3 正式釋出，建議所有新專案直接採用 MDX 3。以下為重點整理：
-</Alert>
+> **注意**：隨著 2024 年底 MDX 3 正式釋出，建議所有新專案直接採用 MDX 3。以下為重點整理：
 
 ### 主要新特性
 - **Node.js 16+ 強制要求**：MDX 3 僅支援 Node.js 16 或更高版本，請先升級你的 Node.js。
@@ -327,19 +324,19 @@ return (
 ### 升級與遷移建議
 - **檢查 Node 版本**：務必用 `node -v` 確認 >=16。
 - **升級依賴**：
-  <CodeBlock language="bash">
+  ```bash
 npm install @mdx-js/loader@latest @mdx-js/react@latest @next/mdx@latest
-</CodeBlock>
+```
 - **檢查 MDX 設定**：移除已廢棄選項，參考 [MDX 3 官方公告](https://mdxjs.com/)。
 - **測試 await 支援**：
-  <CodeBlock language="mdx">
+  ```mdx
 export async function getStaticProps() {
   const data = await fetchData()
   return { props: { data } }
 }
 # 動態內容
 {data.title}
-</CodeBlock>
+```
 - **CI/CD 檢查**：升級後建議在分支測試所有文章、組件與自動化腳本。
 
 ### 參考
@@ -353,14 +350,12 @@ export async function getStaticProps() {
 - **SEO/OG 自動化**：根據 frontmatter 自動生成 metadata、Open Graph 標籤、JSON-LD。
 - **無障礙設計（Accessibility）**：所有互動組件、圖片、按鈕都應有 aria 標籤與 alt 文字。
 
-<Details summary="常見問題與排錯技巧">
+### 常見問題與排錯技巧
 
 - **MDX 編譯錯誤**：檢查是否混用 YAML frontmatter 與 TSX 組件，或 loader/plugin 順序錯誤。
 - **圖片路徑問題**：建議所有 coverImage 路徑統一放 public/images/posts/，metadata 路徑需正確對應。
 - **部署時失敗**：檢查 Vercel/Netlify 是否安裝所有 MDX 相關依賴，node 版本與本地一致。
 - **TSX/MDX 混用 bug**：避免將 frontmatter 寫在 .tsx，盡量只用 .mdx，型別錯誤時檢查 MDXProvider 型別定義。
-
-</Details>
 
 ### 內容維護與升級建議
 - **自動化腳本**：定期檢查所有 MDX 檔案 metadata 是否齊全，避免漏標題、日期等。
