@@ -6,7 +6,7 @@ const metadata: ArticleMetadata = {
   publishDate: '2025-05-11',
   lastUpdated: '2025-05-11',
   summary: '了解如何整合 MDX 到 React 專案中，讓您可以在 Markdown 中使用 React 組件，打造互動性更高的博客內容。',
-  tags: ['MDX', 'Next.js', 'Blog'],
+  tags: ['MDX', 'React', 'Vite', 'Blog'],
   published: true,
   coverImage: '/images/mdx-blog-setup.jpg',
   // Optional: override default OG image with a post-specific one

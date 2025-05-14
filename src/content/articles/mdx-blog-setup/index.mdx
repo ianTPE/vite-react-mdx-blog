@@ -1,6 +1,6 @@
 # 使用 MDX 建立部落格
 
-MDX 是一個強大的格式，它允許你在 Markdown 文件中直接使用 JSX。這使得創建互動式的文檔和部落格文章變得非常容易。在這篇文章中，我們將學習如何在 Next.js 專案中設置 MDX。
+MDX 是一個強大的格式，它允許你在 Markdown 文件中直接使用 JSX。這使得創建互動式的文檔和部落格文章變得非常容易。在這篇文章中，我們將學習如何在 React 專案中設置 MDX，尤其是在 Vite 及 React Router 環境中。
 
 ## 什麼是 MDX？
 
@@ -15,27 +15,37 @@ MDX 結合了 Markdown 的簡潔性和 React 組件的強大功能。你可以�
 ### 1. 安裝必要的套件
 
 ```bash
-npm install @next/mdx @mdx-js/loader @mdx-js/react
+npm install @mdx-js/rollup @mdx-js/react rehype-highlight rehype-slug remark-gfm
 ```
 
-### 2. 配置 Next.js
+### 2. 配置 Vite
 
-更新 `next.config.js`：
+更新 `vite.config.ts`：
 
-```javascript
-const withMDX = require('@next/mdx')({
-  extension: /\.mdx?$/,
-  options: {
-    // MDX 相關設定
-  }
-})
+```typescript
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import mdx from '@mdx-js/rollup';
+import rehypeHighlight from 'rehype-highlight';
+import remarkGfm from 'remark-gfm';
+import rehypeSlug from 'rehype-slug';
+import path from 'path';
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
-}
-
-module.exports = withMDX(nextConfig)
+export default defineConfig({
+  plugins: [
+    mdx({
+      remarkPlugins: [remarkGfm],
+      rehypePlugins: [rehypeHighlight, rehypeSlug],
+      providerImportSource: '@mdx-js/react',
+    }),
+    react(),
+  ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+});
 ```
 
 ### 3. 更新 Tailwind 配置
@@ -43,12 +53,16 @@ module.exports = withMDX(nextConfig)
 確保 Tailwind 能處理 MDX 檔案：
 
 ```javascript
-module.exports = {
+/** @type {import('tailwindcss').Config} */
+export default {
   content: [
-    './app/**/*.{js,ts,jsx,tsx,md,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,md,mdx}',
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx,md,mdx}",
   ],
-  // ...
+  theme: {
+    extend: {},
+  },
+  plugins: [],
 }
 ```
 
@@ -146,65 +160,122 @@ const withMDX = require('@next/mdx')({
 ### 1. 檔案組織
 
 ```
-content/
-  posts/
-    getting-started.mdx
-    advanced-features.mdx
-app/
-  blog/
-    [slug]/
-      page.tsx
-    page.tsx
+src/
+  content/
+    articles/
+      getting-started/
+        components/
+          index.ts
+        index.mdx
+        metadata.ts
+      advanced-features/
+        components/
+          index.ts
+        index.mdx
+        metadata.ts
+  pages/
+    ArticlePage.tsx
+    ArticlesPage.tsx
 ```
 
-### 2. 動態路由
+### 2. 動態路由 (React Router)
 
 ```tsx
-// app/blog/[slug]/page.tsx
-import { getPostData } from '@/lib/posts'
+// src/App.tsx
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import HomePage from '@/pages/HomePage';
+import ArticlesPage from '@/pages/ArticlesPage';
+import ArticlePage from '@/pages/ArticlePage';
 
-export default async function Post({ params }) {
-  const post = await getPostData(params.slug)
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/articles" element={<ArticlesPage />} />
+        <Route path="/articles/:slug" element={<ArticlePage />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+```
+
+```tsx
+// src/pages/ArticlePage.tsx
+import { useParams } from 'react-router-dom';
+import { getArticleBySlug } from '@/lib/article-utils';
+import { MDXProvider } from '@mdx-js/react';
+
+export default function ArticlePage() {
+  const { slug } = useParams();
+  const [article, setArticle] = useState(null);
+  
+  useEffect(() => {
+    async function loadArticle() {
+      if (slug) {
+        const articleData = await getArticleBySlug(slug);
+        setArticle(articleData);
+      }
+    }
+    
+    loadArticle();
+  }, [slug]);
+  
+  if (!article) return <div>Loading...</div>;
+  
+  const { metadata, Content, components } = article;
   
   return (
     <article>
-      <h1>{post.metadata.title}</h1>
-      <MDXContent content={post.content} />
+      <h1>{metadata.title}</h1>
+      <MDXProvider components={components}>
+        <Content />
+      </MDXProvider>
     </article>
-  )
+  );
 }
 ```
 
 ## 優化建議
 
-1. **圖片優化**：使用 Next.js Image 組件
-2. **SEO**：設置適當的 metadata
-3. **效能**：實施適當的快取策略
+1. **圖片優化**：使用延遲加載和適當的尺寸
+2. **SEO**：使用 react-helmet-async 設置 metadata
+3. **效能**：實施代碼分割和延遲加載
 4. **可訪問性**：確保所有互動元素都是可訪問的
 
 ```tsx
-import Image from 'next/image'
+import { Helmet } from 'react-helmet-async';
 
-export const components = {
-  img: (props) => (
-    <Image
-      {...props}
-      width={800}
-      height={400}
-      className="rounded-lg"
-    />
-  ),
-}
+// 在 ArticlePage 組件中
+return (
+  <>
+    <Helmet>
+      <title>{metadata.title} | My Blog</title>
+      <meta name="description" content={metadata.summary} />
+      <meta property="og:title" content={metadata.title} />
+      <meta property="og:description" content={metadata.summary} />
+      {metadata.coverImage && <meta property="og:image" content={metadata.coverImage} />}
+    </Helmet>
+    <article>{/* 文章內容 */}</article>
+  </>
+);
 ```
 
 ## 部署考量
 
 ### Vercel
 
-Vercel 原生支援 MDX，無需額外配置：
+使用 Vercel 部署 Vite 專案，需要正確設定 `vercel.json`：
 
-```bash
-vercel deploy
+```json
+{
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "outputDirectory": "dist"
+}
 ```
 
 ### 其他平台
@@ -214,8 +285,10 @@ vercel deploy
 ```json
 {
   "scripts": {
-    "build": "next build",
-    "postbuild": "next-sitemap"
+    "dev": "npm run generate-articles && vite",
+    "build": "npm run generate-articles && vite build",
+    "preview": "vite preview",
+    "generate-articles": "tsx scripts/generate-articles.ts"
   }
 }
 ```
@@ -290,7 +363,7 @@ vercel deploy
 
 ## 結論
 
-MDX 為 Next.js 部落格提供了無限的可能性。通過結合 Markdown 的簡潔性和 React 的強大功能，你可以創建真正獨特和互動的內容體驗。
+MDX 為 React 部落格提供了無限的可能性。通過結合 Markdown 的簡潔性和 React 的強大功能，你可以創建真正獨特和互動的內容體驗，特別是在 Vite 這樣的現代構建工具加持下。
 
 記住要：
 - 保持內容的可讀性（結構清楚、適當分段）
