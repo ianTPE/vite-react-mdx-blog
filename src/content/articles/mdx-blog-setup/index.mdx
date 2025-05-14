@@ -148,11 +148,19 @@ npm install @mapbox/rehype-prism
 ```
 
 ```javascript
-const withMDX = require('@next/mdx')({
-  options: {
-    rehypePlugins: [require('@mapbox/rehype-prism')],
-  },
-})
+// 在 vite.config.ts 中配置代碼高亮
+import { defineConfig } from 'vite';
+import mdx from '@mdx-js/rollup';
+import rehypeHighlight from 'rehype-highlight';
+
+export default defineConfig({
+  plugins: [
+    mdx({
+      rehypePlugins: [rehypeHighlight]
+    }),
+    // 其他插件...
+  ]
+});
 ```
 
 ## 建立部落格結構
@@ -345,7 +353,7 @@ export async function getStaticProps() {
 ---
 - **程式碼區塊高亮與行號**：結合 rehype-prism-plus，支援多主題、複製按鈕、行號顯示。
 - **圖片自動優化**：MDX img 標籤自動轉換為 Next.js Image，支援 lazy loading、blur-up 效果。
-- **自訂短代碼（Shortcodes）**：如自訂的 YouTube 和 Tweet 組件，提升內容互動性。
+- **自訂短代碼（Shortcodes）**：自訂的 YouTube 和 Tweet 組件，提升內容互動性。
 - **動態組件載入**：用 dynamic import 載入重型互動組件，避免初次渲染負擔。
 - **SEO/OG 自動化**：根據 frontmatter 自動生成 metadata、Open Graph 標籤、JSON-LD。
 - **無障礙設計（Accessibility）**：所有互動組件、圖片、按鈕都應有 aria 標籤與 alt 文字。
