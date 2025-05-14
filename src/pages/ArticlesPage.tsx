@@ -13,7 +13,11 @@ const ArticlesPage: React.FC = () => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   
   useEffect(() => {
+    // 添加調試代碼
+    console.log('Fetching articles...');
     const loadedArticles = getAllArticles();
+    console.log('Loaded articles:', loadedArticles);
+    console.log('Articles slugs:', loadedArticles.map(a => a.slug));
     setArticles(loadedArticles);
   }, []);
 
