@@ -1,3 +1,5 @@
+import { CodeBlock, Alert, Details, YouTube, Tweet } from './components'
+
 # 使用 MDX 建立部落格
 
 MDX 是一個強大的格式，它允許你在 Markdown 文件中直接使用 JSX。這使得創建互動式的文檔和部落格文章變得非常容易。在這篇文章中，我們將學習如何在 React 專案中設置 MDX，尤其是在 Vite 及 React Router 環境中。
@@ -14,15 +16,15 @@ MDX 結合了 Markdown 的簡潔性和 React 組件的強大功能。你可以�
 
 ### 1. 安裝必要的套件
 
-```bash
+<CodeBlock language="bash">
 npm install @mdx-js/rollup @mdx-js/react rehype-highlight rehype-slug remark-gfm
-```
+</CodeBlock>
 
 ### 2. 配置 Vite
 
 更新 `vite.config.ts`：
 
-```typescript
+<CodeBlock language="typescript">
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import mdx from '@mdx-js/rollup';
@@ -46,7 +48,7 @@ export default defineConfig({
     },
   },
 });
-```
+</CodeBlock>
 
 ### 3. 更新 Tailwind 配置
 
@@ -312,7 +314,9 @@ return (
 
 ## MDX 3 新版重點與升級須知
 
+<Alert type="info">
 隨著 2024 年底 MDX 3 正式釋出，建議所有新專案直接採用 MDX 3。以下為重點整理：
+</Alert>
 
 ### 主要新特性
 - **Node.js 16+ 強制要求**：MDX 3 僅支援 Node.js 16 或更高版本，請先升級你的 Node.js。
@@ -324,9 +328,9 @@ return (
 ### 升級與遷移建議
 - **檢查 Node 版本**：務必用 `node -v` 確認 >=16。
 - **升級依賴**：
-  ```bash
-  npm install @mdx-js/loader@latest @mdx-js/react@latest @next/mdx@latest
-  ```
+  <CodeBlock language="bash">
+npm install @mdx-js/loader@latest @mdx-js/react@latest @next/mdx@latest
+</CodeBlock>
 - **檢查 MDX 設定**：移除已廢棄選項，參考 [MDX 3 官方公告](https://mdxjs.com/)。
 - **測試 await 支援**：
   ```mdx
@@ -350,11 +354,14 @@ return (
 - **SEO/OG 自動化**：根據 frontmatter 自動生成 metadata、Open Graph 標籤、JSON-LD。
 - **無障礙設計（Accessibility）**：所有互動組件、圖片、按鈕都應有 aria 標籤與 alt 文字。
 
-### 常見問題與排錯技巧
+<Details summary="常見問題與排錯技巧">
+
 - **MDX 編譯錯誤**：檢查是否混用 YAML frontmatter 與 TSX 組件，或 loader/plugin 順序錯誤。
 - **圖片路徑問題**：建議所有 coverImage 路徑統一放 public/images/posts/，metadata 路徑需正確對應。
 - **部署時失敗**：檢查 Vercel/Netlify 是否安裝所有 MDX 相關依賴，node 版本與本地一致。
 - **TSX/MDX 混用 bug**：避免將 frontmatter 寫在 .tsx，盡量只用 .mdx，型別錯誤時檢查 MDXProvider 型別定義。
+
+</Details>
 
 ### 內容維護與升級建議
 - **自動化腳本**：定期檢查所有 MDX 檔案 metadata 是否齊全，避免漏標題、日期等。
