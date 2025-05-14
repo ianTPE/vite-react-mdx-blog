@@ -59,6 +59,8 @@ const ArticlePage: React.FC = () => {
         <meta property="og:image" content={ogImageUrl} />
         <meta property="og:type" content="article" />
         <meta name="twitter:card" content="summary_large_image" />
+        {/* 添加 Twitter Widget 腳本，確保每篇文章都能訪問 */}
+        <script async src="https://platform.twitter.com/widgets.js" charSet="utf-8"></script>
       </Helmet>
       
       <article className="max-w-4xl mx-auto pt-10 pb-12">
