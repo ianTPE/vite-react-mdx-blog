@@ -5,9 +5,14 @@ interface YouTubeProps {
   title?: string;
 }
 
-const YouTube: React.FC<YouTubeProps> = ({ id, title = 'YouTube video' }) => {
+export default function YouTube({ id, title = 'YouTube video' }: YouTubeProps) {
+  // Log rendering for debugging
+  React.useEffect(() => {
+    console.log(`Rendering YouTube component with ID: ${id}`);
+  }, [id]);
+  
   return (
-    <div className="my-6 aspect-video w-full overflow-hidden rounded-lg">
+    <div className="my-6 aspect-video w-full overflow-hidden rounded-lg shadow-md">
       <iframe
         className="h-full w-full"
         src={`https://www.youtube.com/embed/${id}`}
@@ -18,6 +23,4 @@ const YouTube: React.FC<YouTubeProps> = ({ id, title = 'YouTube video' }) => {
       ></iframe>
     </div>
   );
-};
-
-export default YouTube;
+}

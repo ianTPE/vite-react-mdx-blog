@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getArticleBySlug, getArticleOgImage } from '@/lib/article-utils';
-import { MDXProvider } from '@mdx-js/react';
+import { MDXProvider, useMDXComponents } from '@mdx-js/react';
 import { Helmet } from 'react-helmet-async';
 import Layout from '@/components/layout/Layout';
 
@@ -10,6 +10,9 @@ const ArticlePage: React.FC = () => {
   const navigate = useNavigate();
   const [article, setArticle] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
+  
+  // Get the global MDX components
+  const globalComponents = useMDXComponents();
   
   React.useEffect(() => {
     async function loadArticle() {
@@ -48,6 +51,15 @@ const ArticlePage: React.FC = () => {
   
   const { metadata, Content, components } = article;
   const ogImageUrl = getArticleOgImage(metadata);
+  
+  // Merge global components with article-specific components, prioritizing article-specific ones
+  const mergedComponents = { ...globalComponents, ...components };
+  
+  // Log components for debugging
+  console.log('Article specific components:', Object.keys(components));
+  console.log('Merged components:', Object.keys(mergedComponents));
+  console.log('YouTube component in mergedComponents:', !!mergedComponents.YouTube);
+  console.log('Tweet component in mergedComponents:', !!mergedComponents.Tweet);
   
   return (
     <Layout>
@@ -121,7 +133,7 @@ const ArticlePage: React.FC = () => {
         {/* 文章內容 */}
         <div className="article-content">
           <div className="prose lg:prose-xl w-full">
-            <MDXProvider components={components}>
+            <MDXProvider components={mergedComponents}>
               <Content />
             </MDXProvider>
           </div>

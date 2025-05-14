@@ -53,6 +53,7 @@ export async function getArticleBySlug(slug: string): Promise<ArticleWithContent
   
   // 載入 MDX 內容
   const contentPath = metadataPath.replace('metadata.ts', 'index.mdx');
+  console.log('Loading MDX content from:', contentPath);
   const ContentModule = await contentModules[contentPath]();
   
   // 載入該文章的專屬組件 (如果有)
@@ -63,19 +64,18 @@ export async function getArticleBySlug(slug: string): Promise<ArticleWithContent
     if (componentModules[componentsPath]) {
       const componentsModule = await componentModules[componentsPath]();
       articleComponents = componentsModule.default || {};
+      console.log('Loaded article-specific components:', Object.keys(articleComponents));
     }
   } catch (error) {
     console.warn(`Failed to load components for article "${slug}"`, error);
   }
   
-  // 建立組件註冊表，結合全局組件和文章專屬組件
-  const globalComponents = getGlobalComponents();
-  const components = createComponentRegistry(globalComponents, articleComponents);
-  
+  // Return the article data without combining components
+  // This lets the ArticlePage handle component merging with our global MDX provider
   return {
     metadata,
     Content: ContentModule.default,
-    components
+    components: articleComponents
   };
 }
 
