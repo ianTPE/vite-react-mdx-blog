@@ -1,30 +1,8 @@
 import React from 'react';
 import { Alert } from './Alert';
 import { CodeBlock } from './CodeBlock';
-import Tweet from './Tweet'; // 導入新的 Tweet 組件
-
-// YouTube 組件
-interface YouTubeProps {
-  id: string;
-  title?: string;
-}
-
-const YouTube: React.FC<YouTubeProps> = ({ id, title = 'YouTube video' }) => {
-  return (
-    <div style={{ aspectRatio: '16/9', margin: '24px 0' }}>
-      <iframe
-        width="100%"
-        height="100%"
-        src={`https://www.youtube.com/embed/${id}`}
-        title={title}
-        frameBorder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowFullScreen
-      ></iframe>
-    </div>
-  );
-};
-
+import YouTube from './YouTube';  // Import YouTube component
+import Tweet from './Tweet';  // Import Tweet component
 
 // Details 組件
 interface DetailsProps {

@@ -31,12 +31,34 @@ const Tweet: React.FC<TweetProps> = ({ id }) => {
         renderTweet(tweetContainer, id);
       }
     }
+    
+    // 重要：監聽腳本是否已載入完畢的備用方法
+    const checkInterval = setInterval(() => {
+      if ((window as any).twttr && (window as any).twttr.widgets) {
+        console.log("Twitter widgets script found, attempting to render again");
+        if (tweetRef.current) {
+          const existingTweet = tweetRef.current.querySelector('twitter-widget');
+          if (!existingTweet) {
+            const containers = tweetRef.current.querySelectorAll('div');
+            if (containers.length > 0) {
+              renderTweet(containers[containers.length - 1], id);
+            }
+          }
+        }
+        clearInterval(checkInterval);
+      }
+    }, 1000);
+    
+    return () => {
+      clearInterval(checkInterval);
+    };
   }, [id]);
 
   // 渲染 tweet 的函數
   const renderTweet = (container: HTMLElement, tweetId: string) => {
     const twttr = (window as any).twttr;
     if (twttr && twttr.widgets) {
+      console.log(`Rendering tweet ${tweetId}...`);
       twttr.widgets.createTweet(
         tweetId,
         container,
@@ -46,14 +68,15 @@ const Tweet: React.FC<TweetProps> = ({ id }) => {
           dnt: true,
           conversation: 'none' // 不顯示對話內容
         }
-      ).then(() => {
-        console.log(`Tweet ${tweetId} has been rendered`);
+      ).then((el: any) => {
+        console.log(`Tweet ${tweetId} has been rendered`, el);
       }).catch((error: any) => {
         console.error('Failed to render tweet:', error);
         // 顯示後備內容
         showFallbackContent(container, tweetId);
       });
     } else {
+      console.warn('Twitter widgets are not available yet');
       // Twitter 小工具腳本沒有加載，顯示後備內容
       showFallbackContent(container, tweetId);
     }
@@ -93,17 +116,19 @@ const Tweet: React.FC<TweetProps> = ({ id }) => {
   };
 
   return (
-    <div ref={tweetRef} className="tweet-container">
-      {/* Tweet 將在此處渲染 */}
-      {/* 加載中顯示的內容 */}
-      <div style={{ 
-        textAlign: 'center', 
-        padding: '20px', 
-        border: '1px solid #eee',
-        borderRadius: '8px',
-        backgroundColor: '#f9f9f9' 
-      }}>
-        載入 Tweet 中...
+    <div ref={tweetRef} className="tweet-container my-6 flex justify-center">
+      <div className="max-w-xl w-full">
+        {/* Tweet 將在此處渲染 */}
+        {/* 加載中顯示的內容 */}
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '20px', 
+          border: '1px solid #eee',
+          borderRadius: '8px',
+          backgroundColor: '#f9f9f9' 
+        }}>
+          載入 Tweet 中...
+        </div>
       </div>
     </div>
   );
