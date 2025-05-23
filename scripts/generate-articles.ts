@@ -3,6 +3,14 @@ import path from 'path';
 
 async function generateArticlesData() {
   const articlesDir = path.resolve('src/content/articles');
+  // 元数据文件直接位于 articles 目录下，而不是作为子目录
+  const metadataPath = path.join(articlesDir, 'metadata.ts');
+  
+  // 檢查元數據文件是否存在
+  if (!fs.existsSync(metadataPath)) {
+    console.error('錯誤: 找不到元數據文件');
+    process.exit(1);
+  }
   
   // 獲取所有文章目錄
   const articleFolders = fs.readdirSync(articlesDir, { withFileTypes: true })

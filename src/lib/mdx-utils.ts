@@ -3,6 +3,7 @@ import path from 'path';
 import { ComponentType } from 'react';
 import { ArticleMetadata, ArticleWithContent } from '../types/Article';
 import componentRegistry from './component-registry';
+import { getArticleMetadata } from '../content/articles/metadata';
 
 // Path to MDX content
 const ARTICLES_PATH = path.join(process.cwd(), 'src/content/articles');
@@ -15,8 +16,14 @@ export async function loadArticleContent(slug: string): Promise<ArticleWithConte
     // Dynamic import for the MDX content
     const Content = (await import(`../content/articles/${slug}/index.mdx`)).default;
     
-    // Dynamic import for metadata
-    const metadata = (await import(`../content/articles/${slug}/metadata.ts`)).default;
+    // Get metadata from centralized metadata file
+    const metadata = getArticleMetadata(slug);
+    
+    // If metadata not found, return null
+    if (!metadata) {
+      console.error(`Metadata not found for article: ${slug}`);
+      return null;
+    }
 
     // Try to load article-specific components
     let components = {};

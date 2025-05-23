@@ -1,0 +1,18 @@
+# netlify.toml
+# 设置构建命令和发布目录
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# 处理单页应用的路由
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# 设置缓存控制
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"

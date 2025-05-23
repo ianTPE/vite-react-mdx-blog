@@ -1,8 +1,8 @@
 import { ArticleMetadata, ArticleWithContent } from '@/types/Article';
 import { createComponentRegistry } from './component-registry';
+import { getAllPublishedArticles, getArticleMetadata } from '../content/articles/metadata';
 
 // 使用 Vite 的 import.meta.glob 動態導入
-const metadataModules = import.meta.glob('../content/articles/*/metadata.ts', { eager: true });
 const contentModules = import.meta.glob('../content/articles/*/index.mdx');
 const componentModules = import.meta.glob('../content/articles/*/components/index.ts');
 const globalComponentsModule = import.meta.glob('../components/mdx/components.tsx', { eager: true });
@@ -18,46 +18,31 @@ const getGlobalComponents = () => {
 
 // 獲取所有文章元數據 (用於文章列表)
 export function getAllArticles() {
-  const articles: ArticleMetadata[] = [];
-  
-  // 打印所有可用的元數據模組路徑
-  console.log('Available metadata module paths:', Object.keys(metadataModules));
-  
-  for (const path in metadataModules) {
-    const module = metadataModules[path] as { default: ArticleMetadata };
-    console.log(`Processing path: ${path}, metadata:`, module.default);
-    if (module.default && module.default.published) {
-      articles.push(module.default);
-    } else {
-      console.log(`Skipping article at ${path} - not published or no default export`);
-    }
-  }
-  
-  // 按日期排序，最新的優先
-  return articles.sort((a, b) => 
-    new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime()
-  );
+  // 使用集中式元數據文件中的函數
+  return getAllPublishedArticles();
 }
 
 // 根據 slug 載入特定文章
 export async function getArticleBySlug(slug: string): Promise<ArticleWithContent | null> {
-  // 尋找此 slug 對應的元數據路徑
-  const metadataPath = Object.keys(metadataModules).find(
-    path => path.includes(`/${slug}/metadata.ts`)
-  );
+  // 從集中式元數據文件獲取元數據
+  const metadata = getArticleMetadata(slug);
   
-  if (!metadataPath) return null;
-  
-  // 獲取元數據
-  const metadata = (metadataModules[metadataPath] as { default: ArticleMetadata }).default;
+  if (!metadata) return null;
   
   // 載入 MDX 內容
-  const contentPath = metadataPath.replace('metadata.ts', 'index.mdx');
+  const contentPath = `../content/articles/${slug}/index.mdx`;
   console.log('Loading MDX content from:', contentPath);
+  
+  // 檢查路徑是否存在於 contentModules 中
+  if (!contentModules[contentPath]) {
+    console.error(`MDX content not found for article: ${slug}`);
+    return null;
+  }
+  
   const ContentModule = await contentModules[contentPath]();
   
   // 載入該文章的專屬組件 (如果有)
-  const componentsPath = metadataPath.replace('metadata.ts', 'components/index.ts');
+  const componentsPath = `../content/articles/${slug}/components/index.ts`;
   let articleComponents = {};
   
   try {
