@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import mdx from '@mdx-js/rollup';
-import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
 import path from 'path';
@@ -50,7 +49,7 @@ export default defineConfig({
     articleWatcher(),
     mdx({
       remarkPlugins: [remarkGfm],
-      rehypePlugins: [rehypeHighlight, rehypeSlug],
+      rehypePlugins: [rehypeSlug], // 移除 rehypeHighlight，使用我们的 prism-react-renderer 代替
       providerImportSource: '@mdx-js/react',
       jsxImportSource: 'react', // Add JSX import source
       development: process.env.NODE_ENV !== 'production', // Enable development mode for better error messages
