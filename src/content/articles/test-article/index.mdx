@@ -6,6 +6,43 @@
 
 MDX 組件測試。
 
+## 代码高亮测试
+
+以下是一个 JavaScript 代码块示例：
+
+```javascript
+// 这是一个简单的 JavaScript 函数
+function greet(name) {
+  console.log(`你好，${name}!`);
+  return `你好，${name}!`;
+}
+
+// 调用函数
+const result = greet('世界');
+```
+
+以下是 TypeScript 代码块：
+
+```typescript
+// TypeScript 类型定义
+export interface User {
+  id: number;
+  name: string;
+  email?: string;
+  isActive: boolean;
+}
+
+// 带类型的函数
+const createUser = (data: Partial<User>): User => {
+  return {
+    id: Math.floor(Math.random() * 1000),
+    name: data.name || 'Anonymous',
+    email: data.email,
+    isActive: data.isActive ?? true
+  };
+};
+```
+
 ## 結論
 
-如果您能看到這篇文章，說明文章自動添加功能正常工作！
+如果您能看到這篇文章，說明文章自動添加功能正常工作！如果代码块有语法高亮，说明我们的代码高亮功能也正常工作。
